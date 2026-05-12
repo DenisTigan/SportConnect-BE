@@ -35,6 +35,9 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     @PrePersist
     protected void onCreate(){
         this.createdAt = LocalDateTime.now();
@@ -44,13 +47,14 @@ public class User {
 
     }
 
-    public User(String firstName, String lastName, String email, String password, Role role, boolean isActive) {
+    public User(String firstName, String lastName, String email, String password, Role role, boolean isActive, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.role = role;
         this.isActive = isActive;
+        this.phoneNumber = phoneNumber;
     }
 
     public Long getId() {
@@ -115,6 +119,14 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Override

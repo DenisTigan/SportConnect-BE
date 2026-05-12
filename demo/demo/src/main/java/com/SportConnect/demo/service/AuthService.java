@@ -48,7 +48,8 @@ public class AuthService {
                 request.email(),
                 passwordEncoder.encode(request.password()),
                 userRole,
-                true
+                true,
+                request.phoneNumber()
                 );
         userRepository.save(user);
 

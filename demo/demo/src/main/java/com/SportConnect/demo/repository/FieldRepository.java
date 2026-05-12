@@ -11,5 +11,5 @@ import java.util.List;
 public interface FieldRepository extends JpaRepository<Field, Long> {
 
     List<Field> findByOwnerId(Long ownerId);
-    List<Field> findByCategory(Long category);
+    List<Field> findByCategoryIgnoreCase(String category);
 }

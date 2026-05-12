@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 public class ReservationService {
@@ -31,10 +32,13 @@ public class ReservationService {
 
     public ReservationResponse createReservation(ReservationRequest request, String clientEmail) {
 
+
         User client = userRepository.findByEmail(clientEmail)
                 .orElseThrow(() -> new RuntimeException("Clientul nu a fost gasit"));
         Field field = fieldRepository.findById(request.fieldId())
                 .orElseThrow(() -> new RuntimeException("Terenul nu a fost gasit"));
+
+
 
         LocalDateTime now = LocalDateTime.now();
         if(request.startTime().isBefore(now)){
@@ -44,6 +48,9 @@ public class ReservationService {
             throw new RuntimeException("Ora de final trebuie sa fie dupa ora de inceput!");
         }
 
+
+
+
         LocalTime requestedStartTime = request.startTime().toLocalTime();
         LocalTime requestedEndTime = request.endTime().toLocalTime();
 
@@ -51,14 +58,23 @@ public class ReservationService {
             throw new RuntimeException("Rezervarea este in afara programului de lucru (" + field.getOpenTime() + " - " + field.getCloseTime() + ")");
         }
 
+
+
+
         boolean isOccupied = reservationRepository.isFieldOccupied(field.getId(), request.startTime(), request.endTime());
         if(isOccupied){
             throw new RuntimeException("Terenul este deja rezervat in acel interval!");
         }
 
+
+
+
         long durationInMinutes = Duration.between(request.startTime(), request.endTime()).toMinutes();
         double durationInHours = (double)durationInMinutes / 60;
         double calculatePrice = durationInHours * field.getPricePerHour();
+
+
+
 
         Reservation reservation = new Reservation(
                 request.startTime(),
@@ -70,6 +86,9 @@ public class ReservationService {
         );
 
         Reservation savedReservation = reservationRepository.save(reservation);
+
+
+
 
 
         return new ReservationResponse(
@@ -85,4 +104,36 @@ public class ReservationService {
 
 
     }
+
+    public List<ReservationResponse> getClientHistory(String email) {
+        return reservationRepository.findAllByUserEmailOrderByStartTimeDesc(email)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+
+    public List<ReservationResponse> getOwnerHistory(String email) {
+        return reservationRepository.findAllByFieldOwnerEmailOrderByStartTimeDesc(email)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+
+
+
+    private ReservationResponse mapToResponse(Reservation reservation) {
+        return new ReservationResponse(
+          reservation.getId(),
+          reservation.getField().getId(),
+          reservation.getField().getName(),
+          reservation.getStartTime(),
+          reservation.getEndTime(),
+          reservation.getTotalPrice(),
+          reservation.getStatus(),
+          reservation.getUser().getFirstName() + " " + reservation.getUser().getLastName()
+        );
+    }
+
 }

@@ -22,4 +22,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     boolean isFieldOccupied(@Param("fieldId") Long fieldId,
                             @Param("start") LocalDateTime start,
                             @Param("end") LocalDateTime end);
+
+    List<Reservation> findAllByUserEmailOrderByStartTimeDesc(String email);
+
+    List<Reservation> findAllByFieldOwnerEmailOrderByStartTimeDesc(String email);
+
+
+
+
 }

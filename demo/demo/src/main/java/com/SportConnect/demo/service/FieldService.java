@@ -57,6 +57,21 @@ public class FieldService {
                 .collect(Collectors.toList());
     }
 
+    public List<FieldResponse> getFieldsByCategory(String category) {
+        List<Field> fields = fieldRepository.findByCategoryIgnoreCase(category);
+
+        return fields.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public FieldResponse getFieldById(Long id) {
+        Field field = fieldRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Terenul cu ID-ul " + id + " nu a fost găsit!"));
+
+        return mapToResponse(field);
+    }
+
 
     private FieldResponse mapToResponse(Field field) {
         return new FieldResponse(

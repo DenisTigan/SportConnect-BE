@@ -1,11 +1,11 @@
 package com.SportConnect.demo.dto;
 
-public record RegisterRequest(
+public record UserResponse(
+        Long id,
         String firstName,
         String lastName,
         String email,
-        String password,
-        String role,
-        String phoneNumber
+        String phoneNumber,
+        String role
 ) {
 }
