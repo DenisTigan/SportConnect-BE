@@ -34,13 +34,9 @@ public class AuthService {
         if (userRepository.existsByEmail(request.email())){
             throw new RuntimeException("Emailul este deja folosit");
         }
-        Role userRole;
 
-        try {
-            userRole = Role.valueOf("ROLE_" + request.role().toUpperCase());
-        }catch (IllegalArgumentException e){
-            userRole = Role.ROLE_CLIENT;
-        }
+        Role userRole = Role.ROLE_CLIENT;
+
 
         User user = new User(
                 request.firstName(),

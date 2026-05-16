@@ -17,7 +17,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
 
     @Query("SELECT COUNT(r)>0 FROM Reservation r WHERE r.field.id = :fieldId " +
-    "AND r.status = 'CONFIRMED'" +
+    "AND r.status = 'CONFIRMED' " +
     "AND (:start<r.endTime AND :end > r.startTime)")
     boolean isFieldOccupied(@Param("fieldId") Long fieldId,
                             @Param("start") LocalDateTime start,

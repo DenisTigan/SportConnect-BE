@@ -136,4 +136,56 @@ public class ReservationService {
         );
     }
 
+
+
+    public String cancelReservation(Long reservationId, String currentUserEmail) {
+        // 1. Căutăm rezervarea
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Rezervarea nu a fost gasita!"));
+
+        // Dacă e deja anulată, oprim procesul ca să nu suprascriem aiurea
+        if ("CANCELLED".equals(reservation.getStatus())) {
+            throw new RuntimeException("Această rezervare este deja anulată!");
+        }
+
+        // 2. Căutăm utilizatorul care face cererea
+        User currentUser = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost gasit!"));
+
+        // 3. Verificăm CINE este utilizatorul (Drepturile)
+        boolean isAdmin = currentUser.getRole().name().equals("ROLE_ADMIN");
+
+        boolean isPartnerOwner = currentUser.getRole().name().equals("ROLE_PARTNER") &&
+                reservation.getField().getOwner().getEmail().equals(currentUserEmail);
+
+        // Verificăm dacă utilizatorul curent este cel care a creat rezervarea (indiferent de rol)
+        boolean isAuthor = reservation.getUser().getEmail().equals(currentUserEmail);
+
+        // 4. Aplicăm regulile de business și schimbăm statusul
+        if (isAdmin || isPartnerOwner) {
+            // ADMINUL și Proprietarul terenului pot anula oricând, fără limită de timp
+            reservation.setStatus("CANCELLED");
+            reservationRepository.save(reservation);
+            return "Rezervarea a fost anulată cu succes. (Acțiune realizată de: " + currentUser.getRole().name() + ")";
+
+        } else if (isAuthor) {
+            // AUTORUL (cel care a făcut-o) trebuie să respecte regula de 24 de ore
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime matchStartTime = reservation.getStartTime();
+
+            long hoursUntilMatch = Duration.between(now, matchStartTime).toHours();
+
+            if (hoursUntilMatch < 24) {
+                throw new RuntimeException("Prea târziu! Poți anula o rezervare doar cu minim 24 de ore înainte de meci.");
+            }
+
+            reservation.setStatus("CANCELLED");
+            reservationRepository.save(reservation);
+            return "Rezervarea ta a fost anulată cu succes.";
+
+        } else {
+            // Dacă nu ești nici Admin, nici proprietarul terenului, nici cel care a făcut rezervarea
+            throw new RuntimeException("Nu ai permisiunea de a anula această rezervare!");
+        }
+    }
 }

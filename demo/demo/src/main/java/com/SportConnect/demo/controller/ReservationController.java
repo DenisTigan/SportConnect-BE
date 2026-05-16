@@ -41,9 +41,21 @@ public class ReservationController {
 
 
     @GetMapping("owner-calendar")
-    @PreAuthorize("hasAuthority('PARTNER')")
+    @PreAuthorize("hasAuthority('ROLE_PARTNER')")
     public ResponseEntity<List<ReservationResponse>> getOwnerCalendar(Authentication authentication) {
         return ResponseEntity.ok(reservationService.getOwnerHistory(authentication.getName()));
+    }
+
+    @PutMapping("/cancel/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> cancelReservation(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String currentUserEmail = authentication.getName();
+        String responseMessage = reservationService.cancelReservation(id, currentUserEmail);
+
+        return ResponseEntity.ok(responseMessage);
     }
 
 }
