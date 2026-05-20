@@ -26,7 +26,7 @@ public class FieldController {
     }
 
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
-    @PreAuthorize("hasAuthority('ROLE_PARTNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_PARTNER', 'ROLE_ADMIN')")
     public ResponseEntity<FieldResponse> addField(
             @RequestPart("fieldDetails") FieldRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image,
