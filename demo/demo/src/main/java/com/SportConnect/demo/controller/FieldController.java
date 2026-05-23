@@ -78,4 +78,14 @@ public class FieldController {
         return ResponseEntity.ok("Terenul a fost șters cu succes!");
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<FieldResponse>> searchFields(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Double maxPrice) {
+
+        List<FieldResponse> results = fieldService.searchFields(name, category, maxPrice);
+        return ResponseEntity.ok(results);
+    }
+
 }

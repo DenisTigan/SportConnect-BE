@@ -73,4 +73,24 @@ public class PartnerRequestService {
 
         return "Cererea a fost aprobata! " + user.getEmail() + " este acum PARTENER.";
     }
+
+    // 4. Adminul respinge cererea (Simplificat)
+    public String rejectRequest(Long requestId) {
+        // 1. Căutăm cererea în bază
+        PartnerRequest request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Cererea nu exista!"));
+
+        // 2. Verificăm să nu fie deja procesată (să fie strict PENDING)
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new RuntimeException("Aceasta cerere a fost deja procesata (este aprobată sau respinsă)!");
+        }
+
+        // 3. Schimbăm statusul direct în REJECTED
+        request.setStatus(RequestStatus.REJECTED);
+
+        // 4. Salvăm modificarea
+        requestRepository.save(request);
+
+        return "Cererea a fost respinsă! Utilizatorul a rămas CLIENT.";
+    }
 }

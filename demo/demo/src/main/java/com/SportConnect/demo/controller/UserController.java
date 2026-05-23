@@ -1,10 +1,12 @@
 package com.SportConnect.demo.controller;
 
 
+import com.SportConnect.demo.dto.ChangePasswordRequest;
 import com.SportConnect.demo.dto.UserResponse;
 import com.SportConnect.demo.dto.UserUpdateRequest;
 import com.SportConnect.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,5 +42,23 @@ public class UserController {
 
         // Returnăm profilul actualizat cu statusul 200 OK
         return ResponseEntity.ok(updatedProfile);
+    }
+
+    @PostMapping("/{id}/demote")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<String> demotePartner(@PathVariable Long id) {
+        String resultMessage = userService.demotePartnerToClient(id);
+        return ResponseEntity.ok(resultMessage);
+    }
+
+    @PutMapping("/me/change-password")
+    public ResponseEntity<String> changePassword(
+            Authentication authentication,
+            @RequestBody ChangePasswordRequest request) {
+
+        String email = authentication.getName();
+        String result = userService.changePassword(email, request);
+
+        return ResponseEntity.ok(result);
     }
 }

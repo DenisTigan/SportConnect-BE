@@ -1,6 +1,7 @@
 package com.SportConnect.demo.service;
 
 
+import com.SportConnect.demo.dto.AnalyticsResponse;
 import com.SportConnect.demo.dto.ReservationRequest;
 import com.SportConnect.demo.dto.ReservationResponse;
 import com.SportConnect.demo.model.Field;
@@ -211,5 +212,43 @@ public class ReservationService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    public AnalyticsResponse getAnalytics(String email, LocalDate date) {
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit!"));
+
+        boolean isAdmin = currentUser.getRole().name().equals("ROLE_ADMIN");
+        List<Reservation> allReservations;
+
+        // 1. Extragem datele brute în funcție de Rol
+        if (isAdmin) {
+            // Adminul primește absolut toate rezervările din platformă
+            allReservations = reservationRepository.findAll();
+        } else {
+            // Partenerul primește DOAR rezervările de la terenurile lui
+            // Refolosim metoda ta din repository!
+            allReservations = reservationRepository.findAllByFieldOwnerEmailOrderByStartTimeDesc(email);
+        }
+
+        // 2. Filtrăm după o ZI anume (dacă a fost cerută în URL)
+        if (date != null) {
+            allReservations = allReservations.stream()
+                    .filter(r -> r.getStartTime().toLocalDate().equals(date))
+                    .toList();
+        }
+
+        // 3. Păstrăm doar rezervările valide (Excludem "CANCELLED")
+        List<Reservation> validReservations = allReservations.stream()
+                .filter(r -> !r.getStatus().equals("CANCELLED"))
+                .toList();
+
+        // 4. Calculăm cifrele
+        long totalCount = validReservations.size();
+        double totalRevenue = validReservations.stream()
+                .mapToDouble(Reservation::getTotalPrice)
+                .sum();
+
+        return new AnalyticsResponse(totalCount, totalRevenue);
     }
 }

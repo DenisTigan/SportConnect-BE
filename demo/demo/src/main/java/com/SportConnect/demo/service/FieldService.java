@@ -147,6 +147,11 @@ public class FieldService {
         fieldRepository.delete(field);
     }
 
-
+    public List<FieldResponse> searchFields(String name, String category, Double maxPrice) {
+        return fieldRepository.searchFields(name, category, maxPrice)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
 }
 

@@ -41,4 +41,11 @@ public class PartnerRequestController {
     public ResponseEntity<String> approveRequest(@PathVariable Long id) {
         return ResponseEntity.ok(requestService.approveRequest(id));
     }
+    // URL pt Admin: POST /api/partner-requests/reject/{id}
+    @PostMapping("/reject/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<String> rejectRequest(@PathVariable Long id) {
+        // Apelăm serviciul direct
+        return ResponseEntity.ok(requestService.rejectRequest(id));
+    }
 }
