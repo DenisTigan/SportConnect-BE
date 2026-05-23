@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/fields/all", "/api/fields/category/", "/api/fields/{id}").permitAll()                        .requestMatchers("/api/reservations/create").hasRole("CLIENT")
+                        .requestMatchers("/api/fields/all", "/api/fields/category/**", "/api/fields/{id}").permitAll()                        .requestMatchers("/api/reservations/create").hasRole("CLIENT")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/partener/**").hasRole("PARTNER")
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
@@ -64,7 +64,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "https://sport-connect-fr.vercel.app"
+                "https://sport-connect-fr-*.vercel.app/"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-type"));
