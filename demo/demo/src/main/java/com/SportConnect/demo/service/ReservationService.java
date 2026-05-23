@@ -12,6 +12,7 @@ import com.SportConnect.demo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -114,10 +115,24 @@ public class ReservationService {
 
 
     public List<ReservationResponse> getOwnerHistory(String email) {
-        return reservationRepository.findAllByFieldOwnerEmailOrderByStartTimeDesc(email)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+        // 1. Găsim utilizatorul care a făcut cererea (pentru a-i afla rolul)
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit!"));
+
+        // 2. Verificăm dacă este ADMIN
+        if (currentUser.getRole().name().equals("ROLE_ADMIN")) {
+            // ADMIN-ul vede tot
+            return reservationRepository.findAllByOrderByStartTimeDesc()
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
+        } else {
+            // PARTENERUL vede doar rezervările de pe terenurile lui
+            return reservationRepository.findAllByFieldOwnerEmailOrderByStartTimeDesc(email)
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
+        }
     }
 
 
@@ -187,5 +202,14 @@ public class ReservationService {
             // Dacă nu ești nici Admin, nici proprietarul terenului, nici cel care a făcut rezervarea
             throw new RuntimeException("Nu ai permisiunea de a anula această rezervare!");
         }
+    }
+    public List<ReservationResponse> getOccupiedSlots(Long fieldId, LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay(); // Ex: 2026-05-22 00:00
+        LocalDateTime endOfDay = date.atTime(23, 59, 59); // Ex: 2026-05-22 23:59
+
+        return reservationRepository.findConfirmedReservationsForFieldAndDate(fieldId, startOfDay, endOfDay)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 }

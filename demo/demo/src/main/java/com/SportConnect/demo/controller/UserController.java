@@ -2,12 +2,11 @@ package com.SportConnect.demo.controller;
 
 
 import com.SportConnect.demo.dto.UserResponse;
+import com.SportConnect.demo.dto.UserUpdateRequest;
 import com.SportConnect.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -26,5 +25,20 @@ public class UserController {
         UserResponse userProfile = userService.getUserProfile(email);
 
         return ResponseEntity.ok(userProfile);
+    }
+    // Adaugă asta sub metoda getCurrentUser existentă
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateCurrentUser(
+            Authentication authentication,
+            @RequestBody UserUpdateRequest request) {
+
+        // Luăm email-ul din token-ul JWT (exact ca la GetMapping)
+        String email = authentication.getName();
+
+        // Trimitem cererea la Service
+        UserResponse updatedProfile = userService.updateUserProfile(email, request);
+
+        // Returnăm profilul actualizat cu statusul 200 OK
+        return ResponseEntity.ok(updatedProfile);
     }
 }

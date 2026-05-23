@@ -21,7 +21,7 @@ public class PartnerRequestController {
 
     // URL pt Client: POST /api/partner-requests/submit
     @PostMapping("/submit")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CLIENT')")
     public ResponseEntity<String> submitRequest(@RequestBody Map<String, String> payload, Authentication authentication) {
         String email = authentication.getName();
         String message = payload.get("message");
@@ -30,14 +30,14 @@ public class PartnerRequestController {
 
     // URL pt Admin: GET /api/partner-requests/pending
     @GetMapping("/pending")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Map<String, Object>>> getPendingRequests() {
         return ResponseEntity.ok(requestService.getPendingRequests());
     }
 
     // URL pt Admin: POST /api/partner-requests/approve/1
     @PostMapping("/approve/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> approveRequest(@PathVariable Long id) {
         return ResponseEntity.ok(requestService.approveRequest(id));
     }

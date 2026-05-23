@@ -27,7 +27,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findAllByFieldOwnerEmailOrderByStartTimeDesc(String email);
 
+    @Query("SELECT r FROM Reservation r WHERE r.field.id = :fieldId " +
+            "AND r.status = 'CONFIRMED' " +
+            "AND r.startTime >= :startOfDay AND r.endTime <= :endOfDay")
+    List<Reservation> findConfirmedReservationsForFieldAndDate(
+            @Param("fieldId") Long fieldId,
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay);
 
 
 
+    // Metoda pentru ADMIN: aduce absolut toate rezervările
+    List<Reservation> findAllByOrderByStartTimeDesc();
 }

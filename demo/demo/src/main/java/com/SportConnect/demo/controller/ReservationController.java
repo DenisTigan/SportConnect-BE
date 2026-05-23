@@ -4,12 +4,14 @@ package com.SportConnect.demo.controller;
 import com.SportConnect.demo.dto.ReservationRequest;
 import com.SportConnect.demo.dto.ReservationResponse;
 import com.SportConnect.demo.service.ReservationService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -41,7 +43,7 @@ public class ReservationController {
 
 
     @GetMapping("owner-calendar")
-    @PreAuthorize("hasAuthority('ROLE_PARTNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_PARTNER', 'ROLE_ADMIN')")
     public ResponseEntity<List<ReservationResponse>> getOwnerCalendar(Authentication authentication) {
         return ResponseEntity.ok(reservationService.getOwnerHistory(authentication.getName()));
     }
@@ -58,4 +60,13 @@ public class ReservationController {
         return ResponseEntity.ok(responseMessage);
     }
 
+
+    @GetMapping("/occupied")
+    public ResponseEntity<List<ReservationResponse>> getOccupiedSlots(
+            @RequestParam Long fieldId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        List<ReservationResponse> occupiedSlots = reservationService.getOccupiedSlots(fieldId, date);
+        return ResponseEntity.ok(occupiedSlots);
+    }
 }
