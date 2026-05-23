@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth-> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/fields/all", "/api/fields/category/**", "/api/fields/{id}").permitAll()                        .requestMatchers("/api/reservations/create").hasRole("CLIENT")
@@ -64,7 +65,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "https://sport-connect-fr-*.vercel.app"
+                "https://sport-connect-fr.vercel.app",  // Link-ul principal (curat)
+                "https://sport-connect-fr-*.vercel.app" // Link-urile de testare (preview)
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-type"));
